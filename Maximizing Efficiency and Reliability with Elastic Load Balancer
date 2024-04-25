@@ -1,0 +1,340 @@
+Hey Techies…👋
+
+Blog Link: https://medium.com/@iam-athirakk/maximizing-efficiency-and-reliability-with-elastic-load-balancer-1aae54b5788b
+
+
+Elastic Load Balancer
+
+Load balancing is a crucial aspect of managing clusters of servers efficiently. It involves distributing incoming network traffic across multiple servers to ensure optimal resource utilization, reliability, and scalability.
+In AWS, Elastic Load Balancer (ELB) provides a scalable and reliable solution for load balancing, allowing users to distribute traffic across multiple targets seamlessly.
+Key Components of ELB:
+
+◼️Frontend Port and Backend Port:
+
+The frontend port is the port on which the load balancer listens for incoming traffic. For example, for HTTPS connections, the frontend port would typically be 443.
+The backend port is the port on which the load balancer forwards traffic to the backend servers. It corresponds to the port where the application/service is running on the backend servers. For instance, if a Tomcat server is running on port 8080 on backend instances, the backend port would be set to 8080.
+◼️Types of ELB:
+
+Classic Load Balancer: Operates at the network layer (Layer 4) of the OSI model. It provides basic load balancing capabilities and distributes incoming traffic to backend instances based on configured rules.
+Application Load Balancer (ALB): Operates at the application layer (Layer 7) of the OSI model. ALB supports advanced routing based on URL paths, hostnames, and other application-level attributes, making it ideal for HTTP and HTTPS traffic.
+Network Load Balancer (NLB): Operates at the transport layer (Layer 4) of the OSI model. NLB is designed to handle extremely high volumes of traffic and offers ultra-low latency, making it suitable for TCP, UDP, and TLS traffic.
+◼️Load Balancer Targets:
+
+ELB distributes traffic to backend targets, which can include EC2 instances, containers, IP addresses, or Lambda functions.
+Targets are distributed across multiple availability zones to improve fault tolerance and high availability.
+Benefits of ELB:
+
+Scalability: ELB automatically scales in response to incoming traffic, ensuring that applications remain responsive even during traffic spikes.
+Fault Tolerance: By distributing traffic across multiple targets and availability zones, ELB enhances fault tolerance and resiliency.
+Simplified Management: ELB abstracts away the complexities of managing load balancers, allowing users to focus on building and scaling their applications.
+Let’s proceed with launching an instance and naming it as “web-health”.
+
+You have the flexibility to choose between Amazon Linux, Ubuntu, or CentOS. The script provided in the resource section is compatible with both RPM-based and Debian-based operating systems. Since Amazon Linux is RPM-based, we’ll stick with it for this instance.
+
+
+Let’s opt for a t2.micro instance type and create a new key pair named “web-health-key” for secure access.
+
+
+
+Now, for the security group, let’s create a new one named “web-health-sg”, allowing inbound traffic on port 22 for SSH from your IP, and an additional rule for port 80, allowing traffic only from your IP.
+
+
+
+Moving forward, let’s proceed with the default storage settings and navigate to advanced details. Here, we’ll utilize the script in the “User data” section under “Advanced details”. Simply copy and paste it as instructed.
+
+
+Script:
+
+#!/bin/bash
+
+# Variable Declaration
+#PACKAGE="httpd wget unzip"
+#SVC="httpd"
+URL='https://www.tooplate.com/zip-templates/2098_health.zip'
+ART_NAME='2098_health'
+TEMPDIR="/tmp/webfiles"
+
+yum --help &> /dev/null
+
+if [ $? -eq 0 ]
+then
+   # Set Variables for CentOS
+   PACKAGE="httpd wget unzip"
+   SVC="httpd"
+
+   echo "Running Setup on CentOS"
+   # Installing Dependencies
+   echo "########################################"
+   echo "Installing packages."
+   echo "########################################"
+   sudo yum install $PACKAGE -y > /dev/null
+   echo
+
+   # Start & Enable Service
+   echo "########################################"
+   echo "Start & Enable HTTPD Service"
+   echo "########################################"
+   sudo systemctl start $SVC
+   sudo systemctl enable $SVC
+   echo
+
+   # Creating Temp Directory
+   echo "########################################"
+   echo "Starting Artifact Deployment"
+   echo "########################################"
+   mkdir -p $TEMPDIR
+   cd $TEMPDIR
+   echo
+
+   wget $URL > /dev/null
+   unzip $ART_NAME.zip > /dev/null
+   sudo cp -r $ART_NAME/* /var/www/html/
+   echo
+
+   # Bounce Service
+   echo "########################################"
+   echo "Restarting HTTPD service"
+   echo "########################################"
+   systemctl restart $SVC
+   echo
+
+   # Clean Up
+   echo "########################################"
+   echo "Removing Temporary Files"
+   echo "########################################"
+   rm -rf $TEMPDIR
+   echo
+
+   sudo systemctl status $SVC
+   ls /var/www/html/
+
+else
+    # Set Variables for Ubuntu
+   PACKAGE="apache2 wget unzip"
+   SVC="apache2"
+
+   echo "Running Setup on CentOS"
+   # Installing Dependencies
+   echo "########################################"
+   echo "Installing packages."
+   echo "########################################"
+   sudo apt update
+   sudo apt install $PACKAGE -y > /dev/null
+   echo
+
+   # Start & Enable Service
+   echo "########################################"
+   echo "Start & Enable HTTPD Service"
+   echo "########################################"
+   sudo systemctl start $SVC
+   sudo systemctl enable $SVC
+   echo
+
+   # Creating Temp Directory
+   echo "########################################"
+   echo "Starting Artifact Deployment"
+   echo "########################################"
+   mkdir -p $TEMPDIR
+   cd $TEMPDIR
+   echo
+
+   wget $URL > /dev/null
+   unzip $ART_NAME.zip > /dev/null
+   sudo cp -r $ART_NAME/* /var/www/html/
+   echo
+
+   # Bounce Service
+   echo "########################################"
+   echo "Restarting HTTPD service"
+   echo "########################################"
+   systemctl restart $SVC
+   echo
+
+   # Clean Up
+   echo "########################################"
+   echo "Removing Temporary Files"
+   echo "########################################"
+   rm -rf $TEMPDIR
+   echo
+
+   sudo systemctl status $SVC
+   ls /var/www/html/
+fi
+After launching the instance, it typically takes about 5 minutes to initialize. Once it’s up, we can check the public IP address and access the website via a browser.
+
+
+In case you encounter any issues accessing the website, ensure that the security group allows traffic from your IP and that the HTTP service is running on the instance.
+
+Following the successful setup of our website on the EC2 instance, we’ll proceed with creating an AMI and a launch template for future deployments.
+
+Creating an AMI involves selecting the instance, navigating to Actions > Image and templates > Create image, and specifying a name for the AMI.
+
+
+Provide a name for the AMI — Here I gave — “web-health-ami”.
+
+
+Once the AMI is created, we can leverage it to launch instances with identical configurations, ensuring consistency across our cluster.
+
+Additionally, we can explore options like copying the AMI to other regions or sharing it with other AWS accounts for collaboration.
+
+
+Also, AWS offers a service known as EC2 Image Builder, allowing you to establish automated pipelines for image creation.
+
+The image pipeline in Image Builder defines all aspects of the process to customize images. It consists of the image recipe, infrastructure configuration, distribution, and test settings.
+
+With the AMI in place, we can streamline instance launches by creating a launch template. Given name as “web-health-template” and version as “V1”
+
+
+Then choose the “My AMIs” and select the AMI we created just before “web-health-ami”
+
+
+Select the instance type as t2.micro
+
+
+Select our key pair we created for the instance “web-health”
+
+
+Select the security group as “web-health-sg” we created for our instance “web-health”
+
+
+Just give as below: When launching an instance from this template, I’ll modify the name to follow a format such as 2,3,4 etc.
+
+
+
+With the AMI in place, we can streamline instance launches by creating a launch template. This template encapsulates all the configuration details, allowing for quick and consistent instance deployments.
+
+By utilizing launch templates, we can expedite the process of launching instances and maintain standardized configurations across our infrastructure.
+
+After configuring our instances, AMI, and launch template, we’ll proceed to set up a load balancer to distribute traffic efficiently across our web servers.
+
+Simply navigate to the template section, locate your desired template, and select it. Then, choose the action “launch instance from template.” During the launch process, you’ll have the opportunity to make adjustments as needed. For example, you can modify the tag to “web-health01 to web-health02 two” before proceeding to launch the instance. That’s all there is to it.
+
+
+Now we have 2 instances which we created from templates and we can create ’n’ number of instances upon our business needs.
+
+
+We have successfully created an AMI and established a launch template utilizing this custom AMI.
+
+Presently, we have two web servers operating here. These servers are not individually accessible by users. Instead, users must access them through a unified endpoint, which directs requests to either of these instances. This single endpoint is facilitated by a load balancer.
+
+In the Load Balancer section, we will first navigate to target groups. Target groups function as collections of instances, each subject to health checks. Essentially, they are groups comprising instances. Let’s proceed to create a target group.
+
+Starting with creating a target group, we’ll define health checks and specify the instances to include.
+
+Choose target type as “Instances”
+
+
+Provide a name as below and Port number 80, protocol HTTP.
+
+
+In our setup, we’ve implemented health checks within the target group. These health checks allow the target group to assess the status of each instance. If an instance is deemed unhealthy during these checks, the target group will refrain from routing requests to that specific instance.
+
+Now, you might wonder, how does the target group determine if an instance is healthy or not? It’s a similar process to how we, as humans, assess the health of a website. We simply open the website in a browser and check if it’s functioning properly. If everything looks good, we consider the website to be healthy.
+
+Similarly, the target group conducts health checks by sending HTTP requests to the instances. When configuring these health checks, we specify the protocol (HTTP) and the health check path (/).
+
+Let’s break down what the health check path (/) signifies. Imagine your website’s URL is http://IP:80. The slash at the end of this URL represents the root directory of the website. It’s where the homepage resides.
+
+Now, if your website has subfolders, such as “videos” or “images,” the health check path would be adjusted accordingly (e.g., /videos or /images).
+
+In essence, by specifying the health check path as “/”, we’re instructing the target group to check the root directory of our website. When the target group receives a successful response (HTTP 200 OK) from this path, it considers the instance to be healthy.
+
+
+In our setup, traffic is expected to flow through the default port, which is port 80. However, if your website operates on a different port, you would need to specify it here.
+
+To do so, you would select the “override” option and provide the appropriate port number, such as 8090. However, since we know that our website operates on port 80, we will leave it as is.
+
+
+The “Healthy threshold” parameter determines the number of consecutive successful health checks required before declaring the instance as healthy. By default, it is set to five, but you can adjust it to two or ten as per your preference. With a threshold of five, the system checks the instance’s health five times, and if all checks pass successfully, the instance is marked as healthy.
+
+In our case, I will reduce it to two. This means that the instance will be considered healthy if it passes two consecutive health checks. Similarly, the “Unhealthy threshold” specifies the number of consecutive failed health checks required to declare the instance as unhealthy. If an instance returns an unhealthy status twice in a row, it will be marked as unhealthy.
+
+The “Timeout” parameter determines how long the system waits for a response from the website during each health check. If the website does not respond within the specified timeout period (default is 5 seconds), the system moves on to the next check.
+
+Health checks, whether for determining the instance’s health or unhealthiness, occur at regular intervals, typically every 30 seconds. This interval can be adjusted within a range of 5 to 300 seconds.
+
+When performing health checks, the system looks for a success exit code, typically HTTP 200, indicating that the website is functioning properly. While we can visually confirm this by checking the website in a browser, the target group relies on these exit codes to determine the instance’s health status.
+
+
+So the below are the instances running and click on the “Include as pending below option”.
+
+
+And the targets are in running state.
+
+
+Once the target group is set up, we’ll proceed to create an application load balancer (ALB), specifying its name, internet-facing nature, and availability zones.
+
+We will go with application load balancer for http, https traffic.
+
+
+Give a load balancer name “web-health-elb” and We want it to be available on the Internet, so we’ll keep it Internet facing.
+
+
+When setting up the load balancer, it’s necessary to specify the availability zones where the load balancer will operate. The system requires a minimum of two zones to ensure redundancy and high availability.
+
+For our configuration, I will choose to select all available zones. This ensures that the load balancer operates across multiple zones, maximizing its availability and fault tolerance. This approach provides a high level of availability at the load balancer level, which is crucial for maintaining continuous service availability.
+
+By selecting all zones, we distribute the load balancing functionality across multiple data centers or regions, reducing the risk of downtime due to failures in any single zone. This enhances the resilience and reliability of our application infrastructure, allowing it to withstand potential disruptions in individual zones.
+
+
+Click on the “Create a new security group”
+
+
+For the security configuration of our load balancer, we’ll create a new security group to define its access permissions. It’s important to name this security group appropriately for easy identification and management.
+
+We’ll name it “web-health-elb-sg” to indicate that it’s the security group for our health project’s load balancer. Using descriptive names helps maintain clarity and organization within our AWS environment.
+
+
+As for the inbound rule, we want to allow access on port 80 from anywhere, making the load balancer accessible to the public. We’ll specify the protocol as IPv6 to accommodate modern internet standards, especially considering the increasing adoption of IPv6 by internet service providers, including mobile networks.
+
+Ensuring broad accessibility while maintaining security is crucial for our load balancer’s functionality and usability. Making these considerations and adopting best practices, such as proper naming conventions and access control, contributes to the overall robustness of our infrastructure.
+
+
+Now select the security group we created just now:
+
+
+Ensuring that the ALB’s security group allows inbound traffic on port 80 from any source, we’ll configure listeners to route traffic to the target group on port 80.
+
+
+Now let’s create a load balancer.
+
+
+Upon viewing the load balancer, you’ll notice that it initially enters the provisioning state, transitioning to the active state once fully provisioned. However, despite reaching the active state, attempting to access the website directly from the load balancer may not yield the expected results.
+
+When encountering this issue, accessing the website via the load balancer’s DNS name might result in a 504 Gateway Timeout error, indicating a failure to establish a connection between the load balancer and the instances. Despite verifying that the instances are healthy, the presence of this error suggests a potential obstacle preventing traffic from passing between the load balancer and the instances.
+
+To address this challenge, we need to identify and resolve the underlying cause obstructing traffic flow between the load balancer and the instances. This discrepancy could be attributed to misconfigured security groups, routing issues, or other network-related factors.
+
+By diagnosing and rectifying this barrier, we can ensure seamless connectivity between the load balancer and the instances, thereby resolving the 504 Gateway Timeout error and enabling users to access the website reliably through the load balancer.
+
+Each instance is shielded by a security group, a vital layer of defense governing inbound and outbound traffic. Upon inspection, we observed that both instances share the same security group. However, upon reviewing its inbound rules, we discovered that port 80 was only permitted from our IP address, rather than from the load balancer.
+
+To rectify this, we need to adjust the security group settings to allow traffic from the load balancer. But before proceeding, it’s prudent to verify the status of the target group. The target group conducts health checks to determine an instance’s well-being. If an instance is deemed unhealthy, the target group will cease routing traffic to it. In this scenario, instances were marked as unhealthy due to the inability to access port 80.
+
+Returning to the security group settings, we locate the security group associated with the instances and modify its inbound rules. Specifically, we add a new rule permitting port 80 access from the security group of the load balancer. By specifying the source as the load balancer’s security group, we ensure that any member of the load balancer’s group can communicate with the instances over port 80.
+
+Additionally, it’s beneficial to include a descriptive label for this rule, such as “allow port 80 from ELB,” to enhance clarity and documentation. Descriptive labels streamline management and aid in understanding the purpose of each rule, promoting efficient administration and troubleshooting.
+
+Make the security groups inbound rules as below of “web-health”.
+
+
+Save the rule.
+
+Make sure that the targets are healthy.
+
+
+Now check it on the browser:
+
+
+Managing instances within target groups is a critical aspect of optimizing the performance and availability of applications deployed on AWS. Target groups serve as collections of instances that are subject to health checks, ensuring that traffic is routed only to healthy instances.
+
+Here are some key points to consider when managing instances within target groups:
+
+Health Monitoring: Target groups continuously monitor the health of instances by conducting health checks based on configured parameters. These health checks assess the instance’s ability to respond to requests and determine its overall health status.
+Registration and Deregistration: Instances can be registered or deregistered from target groups dynamically based on operational requirements. This flexibility allows for seamless scaling and maintenance operations without disrupting application availability.
+Maintenance and Scaling: Registering or deregistering instances from target groups is a common practice during maintenance activities or when scaling the application. By removing unhealthy or underperforming instances from the target group, traffic can be effectively redirected to healthy instances, ensuring consistent application performance.
+Load Balancing: Target groups play a crucial role in load balancing by distributing incoming traffic across multiple instances based on predefined rules and health check results. This ensures optimal resource utilization and enhances application reliability and scalability.
+Automation: Managing instances within target groups can be automated using AWS services such as Auto Scaling, which automatically adjusts the number of instances in response to changing demand. This automation helps optimize resource usage and ensures that the application can handle fluctuations in traffic effectively.
+Finally, we’ll familiarize ourselves with managing instances within the target group, including registering and deregistering instances as needed for maintenance or scaling purposes. Reference: Imran Teli — Udemy.
+
+By grasping these concepts and experimenting with the setup, we can gain a comprehensive understanding of deploying and managing web applications on AWS.
