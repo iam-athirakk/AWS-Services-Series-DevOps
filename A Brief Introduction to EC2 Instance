@@ -1,0 +1,219 @@
+A Brief Introduction to EC2 Instance:
+
+Blog link: https://medium.com/@iam-athirakk/a-brief-introduction-to-ec2-instance-2d12e7221d00
+
+
+An EC2 instance, short for Elastic Compute Cloud instance, is a virtual server offered by Amazon Web Services (AWS) that provides resizable compute capacity in the cloud. Essentially, it allows users to rent virtual servers to run their applications or host their websites without the need to invest in physical hardware.
+
+EC2 instances offer a variety of configurations for CPU, memory, storage, and networking, catering to diverse workload requirements.
+Users can select from optimized instance types, such as general-purpose, memory-intensive, or high-performance computing, to suit their specific needs.
+Deployment and management are simplified through AWS Management Console, CLI, or SDKs, facilitating easy provisioning, monitoring, and scaling of instances.
+EC2 serves a wide range of use cases, from basic web hosting to complex data analytics, meeting the computing requirements of businesses across industries and sizes.
+EC2 follows a pay-as-you-go pricing model, ensuring cost-effectiveness by billing users based on instance type, usage duration, and other factors, thus accommodating varying business needs and budget constraints.
+Purpose of having an EC2 Instance
+
+Flexibility: With a wide range of instance types and configurations, EC2 instances cater to diverse workload requirements, from basic web hosting to high-performance computing and data analytics.
+Scalability: EC2 instances offer scalable compute capacity, allowing businesses to easily adjust resources based on demand fluctuations. This scalability ensures efficient resource utilization and cost-effectiveness.
+Global Reach: With AWS’s global infrastructure, EC2 instances are available in multiple regions worldwide. This enables businesses to deploy applications closer to their target audience for improved performance and latency optimization.
+Security and Reliability: EC2 instances provide a secure and reliable environment for running applications, with features like built-in encryption, firewalls, and monitoring tools to safeguard data and ensure high availability.
+Ease of Management: EC2 instances can be quickly deployed and managed through AWS Management Console, CLI, or SDKs, streamlining the process of provisioning, monitoring, and scaling instances as needed.
+Amazon EC2 offers a variety of instance types tailored for diverse needs. These types feature different configurations of CPU, memory, storage, and networking capacity, providing flexibility in selecting resources for your applications. Additionally, each instance type includes multiple sizes, enabling easy scaling according to your workload’s demands.
+
+EC2 Instance Types Overview:
+
+General Purpose:
+
+These instances offer a balanced mix of compute, memory, and networking resources.
+Ideal for applications like web servers and code repositories that require equal proportions of these resources.
+Burstable Performance:
+
+Also known as the T instance family, these instances provide baseline CPU performance with the ability to burst above it when needed.
+Refer to the Amazon EC2 User Guide for Linux Instances for more details.
+Compute Optimized:
+
+Designed for compute-intensive applications requiring high-performance processors.
+Suitable for tasks such as batch processing, media transcoding, and high-performance web servers.
+Memory Optimized:
+
+Tailored for workloads processing large datasets in memory.
+Deliver fast performance for applications with substantial memory requirements.
+Storage Optimized:
+
+Intended for workloads demanding high, sequential read and write access to large data sets on local storage.
+Optimized to provide high IOPS for applications requiring rapid random I/O operations.
+Accelerated Computing:
+
+Utilizes hardware accelerators or co-processors for efficient processing of functions like floating-point calculations and graphics processing.
+Enhances performance compared to software-based processing on CPUs.
+High-Performance Computing (HPC):
+
+Purpose-built for running HPC workloads at scale on AWS, offering optimal price-performance.
+Ideal for complex simulations and deep learning tasks requiring high-performance processors.
+Previous Generation:
+
+AWS continues to support previous generation instance types for users who have optimized their applications around them.
+While current generation instance types offer better performance, previous generation types are still available for legacy applications.
+Understanding AWS Regions, Availability Zones, and Deployment Strategies
+
+Regions:
+
+AWS divides its global infrastructure into geographical regions, such as North America, Europe, Asia Pacific, etc.
+Each region is completely isolated from others and consists of multiple Availability Zones.
+Users select a region when deploying resources like EC2 instances. The choice of region affects latency, compliance, and data residency.
+Availability Zones (AZs):
+
+Availability Zones are distinct data centers within a region, designed for fault tolerance and high availability.
+They are physically separate from each other and are connected through high-speed, low-latency links.
+Deploying resources across multiple AZs enhances fault tolerance. If one AZ experiences an issue, applications can continue running in others without interruption.
+Deployment Strategy:
+
+To ensure high availability and fault tolerance, it’s recommended to distribute resources (like EC2 instances) across multiple AZs within a region.
+This strategy protects against failures or outages in a single AZ and ensures that applications remain accessible even if one AZ becomes unavailable.
+Scalability and Performance:
+
+Deploying resources across multiple AZs allows for better scalability and performance.
+Load balancers can distribute incoming traffic evenly across multiple AZs, optimizing resource utilization and improving response times for users.
+Data Residency and Compliance:
+
+Different regions may have varying data residency regulations and compliance requirements.
+Users need to select the appropriate region and AZs to ensure compliance with local regulations and keep data within designated geographic boundaries.
+Cost Considerations:
+
+Costs for AWS services may vary across regions, so users should consider pricing differences when selecting a region for deployment.
+Additionally, data transfer costs may apply when transferring data between regions or AZs.
+EC2 Major Purchasing options:
+
+1. 𝐎𝐧 𝐃𝐞𝐦𝐚𝐧𝐝 𝐈𝐧𝐬𝐭𝐚𝐧𝐜𝐞𝐬 — Pay for the compute capacity per second , no up- front payment.We can decide when to launch,terminate,start.stop,or reboot.
+
+𝑼𝒔𝒆 𝒄𝒂𝒔𝒆𝒔: short-term work-loads , irregular workloads that cannot be interrupted.
+
+2. 𝐑𝐞𝐬𝐞𝐫𝐯𝐞𝐝 𝐈𝐧𝐬𝐭𝐚𝐧𝐜𝐞𝐬 — We can reserve instances in terms of 1year and 3year. Provide up to 70% discount compared to On-Demand. Payment method can be all upfront, partial upfront,no upfront. If you purchase Reserved Instances of a specific type in an availability zone and the same type is available in same zone then automatically charge at lower rate.
+
+𝑼𝒔𝒆 𝒄𝒂𝒔𝒆𝒔 — Long-term workloads , Applications with steady state or predictable usage.
+
+3. 𝐒𝐩𝐨𝐭 𝐈𝐧𝐬𝐭𝐚𝐧𝐜𝐞𝐬 — Most cost effective , We can request for unused instances up to 90% discount. But if someone is paying more than of yours, then instance will get loosed. So it is less reliable.
+
+𝑼𝒔𝒆 𝒄𝒂𝒔𝒆𝒔 — Image processing , non-critical applications.
+
+4. 𝐃𝐞𝐝𝐢𝐜𝐚𝐭𝐞𝐝 𝐇𝐨𝐬𝐭𝐬– Physical server completely dedicated for your use. More expensive and can be purchase as on demand or reserved.Billing will be per-host.
+
+𝑼𝒔𝒆 𝒄𝒂𝒔𝒆𝒔 — Companies that have strong regulatory or compliance needs.
+
+5.𝐃𝐞𝐝𝐢𝐜𝐚𝐭𝐞𝐝 𝐈𝐧𝐬𝐭𝐚𝐧𝐜𝐞𝐬 — Instances running on hardware that’s dedicated to a single user. It can share hardware with other instances in same account. Billing will be per-instance.
+
+6.𝐒𝐚𝐯𝐢𝐧𝐠𝐬 𝐏𝐥𝐚𝐧𝐬 — This will assist the user to lower the EC2 costs if they agree to keep it for a specific period — ideally, one or three years. The number of active instances are unrestricted.
+
+AMI (Amazon Machine Image):
+
+An AMI is a template used to create virtual machines (instances) within the Amazon EC2 service.
+It contains the operating system, application server, and applications necessary to launch an instance.
+You can create custom AMIs or use pre-built AMIs provided by AWS and other users.
+AMI Images:
+
+AMI images are the actual files stored in Amazon S3 that represent the templates used to launch EC2 instances.
+These images include the root volume snapshot and metadata required to launch an instance.
+AMI images are versioned, allowing you to maintain multiple versions of an AMI and roll back to previous versions if needed.
+Placement Groups
+
+Placement groups are the way of logically grouping interdependent instances together in a selected region.
+In other words, instances that are existing within a common availability zone can be grouped under placement group in order to suit workload requirements.
+By using the placement group, we will increase the performance or improve the availability.
+Types
+
+Cluster placement group
+Spread placement group
+Partition placement group
+𝐁𝐞𝐧𝐞𝐟𝐢𝐭𝐬
+
+Can be able to launch multiple instances within the same AZ.
+Low network latency.
+High network throughput.
+𝐋𝐢𝐦𝐢𝐭𝐚𝐭𝐢𝐨𝐧𝐬
+
+Cannot merge placement groups.
+Cannot launch dedicated hosts in placement groups.
+Instances cannot span into multiple placement groups.
+𝐂𝐥𝐮𝐬𝐭𝐞𝐫 𝐏𝐥𝐚𝐜𝐞𝐦𝐞𝐧𝐭 𝐆𝐫𝐨𝐮𝐩
+
+All the instances are placed in a same hardware rack inside an availability zone.
+But if the rack fails, all instances fail at the same time.
+This type of group will enable to achieve low latency network.
+Good for High Performance applications.
+𝐔𝐬𝐞 𝐂𝐚𝐬𝐞 — Application with low latency and high throughput.
+𝐒𝐩𝐫𝐞𝐚𝐝 𝐏𝐥𝐚𝐜𝐞𝐦𝐞𝐧𝐭 𝐆𝐫𝐨𝐮𝐩
+
+All EC2 instances are placed in different hardware racks in a single availability zone.
+A rack failure will not affect more than one instance.
+We can create up to 7 EC2 instances per availability zone in spread placement group.
+Good for high availability applications and not suitable for high performance applications.
+It can span multiple availability zones in the same region.
+𝐔𝐬𝐞 𝐂𝐚𝐬𝐞- Critical applications that needs to be isolated from failure from each other.
+𝐏𝐚𝐫𝐭𝐢𝐭𝐢𝐨𝐧 𝐏𝐥𝐚𝐜𝐞𝐦𝐞𝐧𝐭 𝐆𝐫𝐨𝐮𝐩
+
+Group of instances spread across racks, and the instances in one partition do not share the underlying hardware with instances in different partition.
+If a rack fails, it will affect on the instances within that particular partition only.
+Partitions can be in different availability zones in the same region.
+It strikes a balance between high performance and high availability.
+𝐔𝐬𝐞 𝐂𝐚𝐬𝐞 — Big data applications like HDFS, HBase, Cassandra, Kafka.
+In AWS EC2, there are three main types of load balancers:
+
+Classic Load Balancer (CLB):
+
+CLB is the original load balancer service provided by AWS.
+It operates at both the application and transport layers (Layer 4 and Layer 7) of the OSI model.
+CLB supports distributing incoming traffic across multiple EC2 instances in multiple Availability Zones.
+It is suitable for applications that require simple load balancing without advanced features.
+Application Load Balancer (ALB):
+
+ALB operates at the application layer (Layer 7) of the OSI model.
+It supports advanced routing features such as host-based routing, path-based routing, and routing based on HTTP headers.
+ALB can handle HTTP and HTTPS traffic and provides support for WebSocket and HTTP/2 protocols.
+It is ideal for modern web applications with multiple microservices or containers.
+Network Load Balancer (NLB):
+
+NLB operates at the transport layer (Layer 4) of the OSI model.
+It provides ultra-low latency and high throughput, making it suitable for handling millions of requests per second.
+NLB supports routing traffic to targets using IP addresses and TCP ports, making it ideal for TCP and UDP-based applications.
+It is commonly used for applications that require high performance, scalability, and reliability, such as gaming, IoT, and real-time communication applications.
+Target Groups are a fundamental component of Elastic Load Balancing (ELB) services in AWS, specifically associated with the Application Load Balancer (ALB) and Network Load Balancer (NLB).
+
+Here’s a concise explanation:
+
+Routing:
+
+When configuring a load balancer (ALB or NLB), you specify one or more target groups to route traffic to.
+Each target group defines the criteria for routing requests to its associated targets, such as based on a specific path, host, or HTTP header.
+Health Checks:
+
+Target Groups perform health checks on their registered targets to ensure they are capable of handling requests.
+Unhealthy targets are automatically removed from the target group until they pass health checks again.
+Load Balancing:
+
+Target Groups distribute incoming traffic evenly across their registered targets according to the configured load balancing algorithm (e.g., round-robin or least outstanding requests).
+Port Configuration:
+
+Target Groups allow you to specify the port on which the targets receive traffic, allowing flexibility in routing requests to different ports on the same target.
+Autoscaling:
+
+Autoscaling is a feature provided by AWS that automatically adjusts the number of EC2 instances in a fleet based on user-defined policies.
+It helps maintain the desired number of instances to handle varying levels of application traffic or workload demand.
+Autoscaling can scale both up (adding more instances) and down (removing instances) dynamically, ensuring optimal resource utilization and cost efficiency.
+Autoscaling Groups:
+
+An Autoscaling Group (ASG) is a logical grouping of EC2 instances managed by the Auto Scaling service.
+ASGs define the scaling policies, launch configurations, and other parameters that govern the behavior of the instances within the group.
+ASGs automatically launch or terminate EC2 instances based on predefined scaling policies and health checks.
+ASGs can be configured to distribute instances across multiple Availability Zones to improve fault tolerance and high availability.
+Ways to connect to EC2 instances via the command line:
+
+SSH connection
+EC2 Instance Connect:
+AWS CLI (Command Line Interface):
+Third-Party Tools ( like PuTTY or MobaXterm)
+and more…..
+
+Refer this link to get hands-on experience in Auto Scaling — https://medium.com/@iam-athirakk/aws-auto-scaling-d67063e1abf8
+
+Refer this link to get hands-on experience in Application Load Balancer — https://medium.com/@iam-athirakk/application-load-balancer-463da91c8960
+
+In the next blog , we will see the labs on various aspects of ec2 instances, real-time problems and their solutions.
