@@ -1,0 +1,202 @@
+Hey Techies…👋
+
+Blog Link: https://medium.com/@iam-athirakk/managing-auto-scaling-groups-in-aws-7d543c93012e
+
+
+Auto Scaling Groups (ASG) seamlessly integrates with CloudWatch to monitor specific metrics, such as CPU utilization. If a metric, like CPU utilization, exceeds a predefined threshold, ASG adjusts capacity by either adding or removing instances in the group. This adjustment is based on CloudWatch alarms, which trigger actions to maintain performance or control costs.
+
+When creating an auto scaling group, you’ll configure launch configurations or launch templates, similar to those used in EC2 instances for ELB exercises. These configurations provide the necessary information for launching instances within the ASG.
+
+To dynamically adjust capacity based on metrics, ASG employs scaling policies. You can define these policies, such as step scaling, to add or remove instances based on workload fluctuations. For instance, you could specify that if CPU usage exceeds 60%, launch two additional instances, or if it exceeds 80%, launch four instances.
+
+When setting up an auto scaling group, you specify parameters like minimum, desired, and maximum capacity. The minimum size ensures a baseline level of instances that cannot be terminated, while desired capacity represents the typical number of running instances. The maximum size limits the total number of instances the group can scale up to, helping to control costs.
+
+In practice, ASG operates by creating a group powered by launch configurations. When a metric breach triggers a CloudWatch alarm, scaling policies kick in to launch or terminate instances accordingly, ensuring optimal performance and resource utilization.
+
+Now, let’s dive into the practical implementation of these concepts.
+
+Before diving into the auto scaling group setup, let’s ensure we have all the necessary components in place.
+
+Firstly, we’ll need the launch template, which should already be created as per the instructions provided in the load balancer section. If the launch template has been removed or needs to be recreated, refer back to the load balancer section for detailed steps on how to create it.
+
+Now, let’s proceed to the Target Group setup.
+
+◼️Navigate to the Target Group section.
+
+◼️Click on the “Create target group” button.
+
+
+◼️Configure the target group settings, such as name. For example, let’s name it “web-health-tg”.
+
+◼️Keep the other configurations as default and proceed by clicking “Next”.
+
+◼️Since we don’t have any instances yet, select the option to create an empty target group.
+
+◼️Complete the target group creation process by following the prompts.
+
+
+Indeed, the Auto Scaling group will automatically add instances to this target group as needed based on your scaling policies and the metrics you’ve configured, ensuring seamless scalability and efficient resource management.
+
+
+We’ll proceed by creating a load balancer for this target group. Let’s select “Create load balancer” and opt for the application load balancer, maintaining consistency with our previous setup.
+
+
+We’ll name it “health-elb” and choose the same availability zones and security groups used previously.
+
+
+Remember to remove the Default Security Group. Next, we’ll configure it to forward traffic to the target group we just created.
+
+
+
+If you already have these resources set up, you can reuse them; otherwise, go ahead and create them now. Here’s our load balancer.
+
+
+Let’s revisit the launch template. This template is essential as it defines the configuration for the instances that will be launched by the auto scaling group.
+
+Since we’ve previously created the launch template, we can review its settings to ensure everything is configured correctly.
+
+https://iam-athirakk.medium.com/maximizing-efficiency-and-reliability-with-elastic-load-balancer-1aae54b5788b
+
+It’s important to verify that the required AMI is available and accessible. If you’ve already prepared the AMI, it should be readily available for selection within the launch template settings.
+
+
+The launch template specifies details such as the Amazon Machine Image (AMI) to be used for the instances.
+
+
+Now, let’s navigate to the auto scaling groups section.
+
+Let’s initiate the creation process by assigning a name to our auto scaling group. For simplicity, let’s name it “web-health-asg”.
+
+
+Next, we’ll select our launch template for the auto scaling group.
+
+You might also notice the option to use a launch configuration, which serves a similar purpose to a launch template. However, AWS now recommends using launch templates due to their added flexibility.
+
+One notable advantage of launch templates is their editability. Unlike launch configurations, which cannot be modified once created, launch templates allow for easy edits and the creation of multiple versions. This versatility enables you to tailor your configurations to different environments or instance types seamlessly.
+
+As we proceed, we’ll opt for the launch template, leveraging its benefits for our auto scaling group. You’ll notice the option to select different versions of the launch template, providing flexibility in configuration management.
+
+
+Choose instance launch options
+
+In this step, we need to specify the availability zones where we want our instances to be launched.
+
+You have the option to select specific zones or allow AWS to choose based on availability. It’s generally recommended to choose at least two zones for redundancy and fault tolerance.
+
+Let’s proceed by selecting all zones and moving to the next step.
+
+
+Configure advanced options
+
+In this step, we have the option to attach our auto scaling group to an existing load balancer.
+
+Since our website will benefit from a load balancer, especially with multiple instances, we’ll choose to attach it to an existing load balancer.
+
+
+We’ll then select the target group that we previously created. This ensures that the instances launched by our auto scaling group are registered with the specified target group, allowing the load balancer to distribute traffic effectively across these instances.
+
+
+In this step, we configure the health check settings for our instances within the auto scaling group.
+
+The primary responsibility of the auto scaling group is to maintain the desired number of healthy instances, ensuring optimal performance and reliability.
+
+By default, the auto scaling group performs basic EC2 health checks, which include hardware and virtual machine checks. However, these checks only verify the instance’s basic functionality and do not guarantee the health of your application or website.
+
+To enable more comprehensive health checks, we opt for ELB (Elastic Load Balancer) health checks. This leverages the target group health check functionality discussed in the load balancer section.
+
+The target group conducts health checks every 300 seconds, verifying the health of instances based on specified criteria such as port availability and process responsiveness. If an instance fails this health check, indicating a potential issue with the hosted application or service, the target group declares it as unhealthy.
+
+Upon detecting an unhealthy instance, the auto scaling group takes corrective action by terminating the problematic instance and launching a replacement. This ensures that the overall system remains resilient and capable of handling fluctuations in workload and application health effectively.
+
+
+Configure group size and scaling
+
+Now, let’s proceed to the next step.
+
+Here, we specify the capacity settings for our auto scaling group. We define the desired, minimum, and maximum number of instances that the group should maintain.
+
+Desired capacity: This indicates the number of instances we want to have in our auto scaling group. For example, setting it to 2 means we aim to have two instances running at all times.
+Minimum capacity: This represents the minimum number of instances that must be running in the auto scaling group, regardless of the workload or scaling policies. In our case, we set it to 1 to ensure there is always at least one instance available.
+Maximum capacity: This defines the upper limit on the number of instances that can be launched by the auto scaling group. Even if the workload demands more instances, the group will not exceed this limit. Here, we set it to 8 to cap the maximum number of instances at eight.
+
+Understanding the distinction between desired, minimum, and maximum capacities is crucial. While desired capacity determines the ideal number of instances, minimum capacity ensures a baseline level of availability, and maximum capacity prevents excessive scaling beyond a predetermined threshold.
+
+
+Next, we delve into scaling policies, which dictate how the auto scaling group responds to changes in workload or system metrics.
+
+Scaling policies: These policies govern when and how the auto scaling group should scale out (add instances) or scale in (remove instances) based on predefined conditions. We can choose from various scaling policy types, such as target tracking scaling policies or simple scaling policies.
+For instance, we opt for a target tracking scaling policy based on CPU utilization. If the combined CPU utilization across instances exceeds 50%, the auto scaling group will add instances to handle the increased workload. Conversely, if CPU utilization drops below 50%, instances may be removed to optimize resource usage.
+
+Additionally, we have the option to enable scaling protection, which safeguards newly launched instances from immediate termination. This feature can be beneficial in scenarios where instances require time to initialize or synchronize data.
+
+
+By configuring these capacity and scaling policy settings, we ensure that our auto scaling group operates efficiently, maintaining optimal performance while dynamically adjusting to changing demand.
+
+
+Add notifications
+
+Now, let’s proceed to the next step.
+
+Here, we have the option to configure event notifications for various actions performed by the auto scaling group.
+
+Notification settings: We can specify a notification topic to receive notifications for specific events related to the auto scaling group’s lifecycle. These events include instance launches, terminations, failures to launch, and failures to terminate.
+By defining a notification topic, we ensure that relevant stakeholders or automated systems are promptly informed of any changes or issues affecting the auto scaling group’s operation. This facilitates proactive monitoring and troubleshooting, allowing us to maintain the reliability and availability of our infrastructure.
+
+After configuring the notification settings as needed, we can proceed to the next stage of the auto scaling group setup process.
+
+
+Add tags
+
+Let’s add tags for identification purposes.
+
+Tag Name: “web-health”
+We’ll keep the naming simple and generic since the number of instances can vary dynamically based on scaling policies.
+
+
+Now, let’s proceed by clicking on “Next” and review all the provided information before finalizing the creation of the auto scaling group. Once verified, we can proceed with the creation process.
+
+Currently, we don’t have any instances running. As per our configuration, the desired capacity is set to two instances. So, the auto scaling group will start creating instances to meet this desired capacity.
+
+You can observe that two instances are being created to fulfill the desired capacity. Additionally, there’s a scaling policy in place. If the CPU utilization drops below 50%, it will terminate instances accordingly. However, it will always maintain a minimum of one instance.
+
+In the instance management section, you’ll find all the instances within the auto scaling group. This section is particularly useful for troubleshooting purposes. Here, you can perform various actions such as detaching an instance from the auto scaling group, setting it to standby mode, or bringing it back into service.
+
+
+You have the option to set scale-in protection for instances. This means that these instances won’t be terminated by the auto-scaling process. This feature is particularly useful during troubleshooting or maintenance activities when you don’t want instances to be terminated unexpectedly.
+
+We’ll wait for a few minutes to ensure that all instances are in a healthy state. Once they are marked as healthy, we’ll explore some additional options. Currently, both instances are running and healthy. You should also see them updated in the target group.
+
+
+When managing instances within an auto-scaling group, it’s crucial to remember that these instances are dynamic. They are automatically created and deleted by the auto-scaling group based on the defined policies and metrics. Therefore, manual changes to instances should be avoided to prevent unexpected behavior.
+
+Any changes to instances should be made through the launch template. This includes changes such as instance type, security group, application upgrades, or software installations. If you need to make changes, create a new launch template or a new version of the existing launch template with the desired configurations.
+
+To apply changes to instances, you can edit the auto-scaling group and select the new launch template. Once the changes are saved, you must initiate an instance refresh to apply the changes to existing instances. During instance refresh, instances are terminated and recreated based on the updated launch template.
+
+
+When initiating an instance refresh, ensure that you specify a minimum healthy percentage. This ensures that a certain percentage of instances remain healthy during the refresh process, preventing disruptions to your application. It’s recommended to set a higher healthy percentage to maintain application stability.
+
+Once changes are applied and instance refresh is initiated, monitor the auto-scaling group activity to ensure that new instances are launched successfully and the application remains available. Avoid manual termination of instances unless necessary for troubleshooting or maintenance purposes.
+
+Please note — instance: i-02e53d55300f6659a I stopped purposefully.
+
+
+We can see 2 instances are running:
+
+
+By following these best practices, you can effectively manage instances within your auto-scaling group while ensuring the reliability and scalability of your application.
+
+In conclusion, auto-scaling groups in AWS offer a powerful solution for managing the scalability and availability of your application infrastructure. By dynamically adjusting the number of EC2 instances based on predefined policies and metrics, auto-scaling groups enable you to efficiently handle fluctuating traffic loads while maintaining optimal performance and cost-effectiveness.
+
+Key points to remember include:
+
+Dynamic Nature: Auto-scaling groups automatically create and terminate EC2 instances based on configured scaling policies, ensuring that your application can handle varying levels of demand without manual intervention.
+Launch Templates: Changes to instance configurations should be made through launch templates, allowing for easy management of instance settings such as instance type, security groups, and software configurations.
+Instance Refresh: When updating configurations, initiate an instance refresh to apply changes to existing instances. Specify a minimum healthy percentage to ensure application stability during the refresh process.
+Avoid Manual Changes: Manual changes to instances within auto-scaling groups should be avoided to prevent conflicts with scaling policies and unexpected behavior. Instead, utilize launch templates for any necessary updates.
+Monitoring and Maintenance: Regularly monitor the auto-scaling group activity to ensure that instances are being created and terminated as expected. Conduct troubleshooting and maintenance activities carefully to avoid disruptions to your application.
+We’re concluding our discussion on EC2 concepts for now, but stay tuned for real-world scenarios in upcoming sessions.
+
+Stay tuned for practical applications and hands-on examples.
+
+Thank you 😊🫰🫶
